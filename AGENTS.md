@@ -48,5 +48,7 @@ avoid using specific names or internal info unless explicitly stated to.
   imports across package roots.
 - Extract shared logic only when the shared behavior is real and local patterns
   support it. Avoid broad generic abstractions for one-off duplication.
-- Always use `pnpm` and `pnpm dlx` for running scripts, installing packages.
+- Always use `vp` (Vite+) for running scripts and dev commands. `vpr` is shorthand for `vp run`.
+- Use `vp node` to execute scripts, `vp install` for dependencies, `vp run <task>` for tasks and package.json scripts.
+- Only fall back to `pnpm` for operations `vp` doesn't wrap (e.g. `pnpm create`, `pnpm ls`).
 - Using any of Effect unstable modules is fine. We consider it stable enough to use in this project.
