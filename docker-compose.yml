@@ -1,0 +1,97 @@
+x-service-defaults: &service-defaults
+  restart: unless-stopped
+  init: true
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+x-healthcheck-defaults: &healthcheck-defaults
+  interval: 10s
+  timeout: 5s
+  retries: 5
+  start_period: 10s
+
+services:
+  postgres:
+    <<: *service-defaults
+    image: postgres:18.3
+    container_name: lecrev-postgres
+    shm_size: ${POSTGRES_SHM_SIZE:-256mb}
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-lecrev}
+      POSTGRES_USER: ${POSTGRES_USER:-lecrev}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lecrev}
+    ports:
+      - "${DOCKER_BIND_ADDRESS:-127.0.0.1}:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      <<: *healthcheck-defaults
+      start_period: 30s
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-lecrev} -d ${POSTGRES_DB:-lecrev}"]
+
+  redis:
+    <<: *service-defaults
+    image: redis:8.6.1
+    container_name: lecrev-redis
+    ports:
+      - "${DOCKER_BIND_ADDRESS:-127.0.0.1}:${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      <<: *healthcheck-defaults
+      test: ["CMD", "redis-cli", "ping"]
+
+  minio:
+    <<: *service-defaults
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    container_name: lecrev-minio
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-lecrev}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-lecrev123}
+    command: server /data --console-address ":9001"
+    ports:
+      - "${DOCKER_BIND_ADDRESS:-127.0.0.1}:${MINIO_API_PORT:-9000}:9000"
+      - "${DOCKER_BIND_ADDRESS:-127.0.0.1}:${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      <<: *healthcheck-defaults
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9000/minio/health/live > /dev/null"]
+
+  mailpit:
+    <<: *service-defaults
+    image: axllent/mailpit:v1.29.2
+    container_name: lecrev-mailpit
+    ports:
+      - "${DOCKER_BIND_ADDRESS:-127.0.0.1}:${MAILPIT_UI_PORT:-8025}:8025"
+      - "${DOCKER_BIND_ADDRESS:-127.0.0.1}:${MAILPIT_SMTP_PORT:-1025}:1025"
+    healthcheck:
+      <<: *healthcheck-defaults
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8025/"]
+
+  caddy:
+    <<: *service-defaults
+    image: caddy:2.11.2
+    container_name: lecrev-caddy
+    ports:
+      - "${DOCKER_BIND_ADDRESS:-127.0.0.1}:${CADDY_HTTP_PORT:-80}:80"
+      - "${DOCKER_BIND_ADDRESS:-127.0.0.1}:${CADDY_HTTPS_PORT:-443}:443"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    healthcheck:
+      <<: *healthcheck-defaults
+      test: ["CMD-SHELL", "curl -fsS http://localhost:2019/config/ > /dev/null"]
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+  caddy_data:
+  caddy_config:

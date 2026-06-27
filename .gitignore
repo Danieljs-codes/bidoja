@@ -29,3 +29,10 @@ dist-ssr
 !.vscode/
 !.vscode/settings.json
 !.vscode/extensions.json
+
+# Environment variables
+.env
+.env*.local
+
+# Agent references
+.references/

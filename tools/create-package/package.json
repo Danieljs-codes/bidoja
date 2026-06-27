@@ -1,0 +1,13 @@
+{
+  "name": "create-package",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Scaffold an internal package following monorepo conventions.",
+  "license": "Apache-2.0",
+  "bin": "./bin/index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@typescript/native-preview": "catalog:"
+  }
+}
