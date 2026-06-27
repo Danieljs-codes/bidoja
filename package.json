@@ -7,6 +7,10 @@
   "scripts": {
     "ready": "vp check && vp run -r test && vp run -r build",
     "dev": "vp run website#dev",
+    "db:generate": "vp run @bidoja/database#db:generate",
+    "db:migrate": "vp run @bidoja/database#db:migrate",
+    "db:push": "vp run @bidoja/database#db:push",
+    "db:up": "vp run @bidoja/database#db:up",
     "prepare": "vp config && effect-tsgo patch"
   },
   "devDependencies": {
