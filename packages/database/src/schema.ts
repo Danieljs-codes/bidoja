@@ -334,10 +334,6 @@ export const journals = d.snakeCase.table(
     createdAt: timestamptz("created_at")
       .default(sql`now()`)
       .notNull(),
-    updatedAt: timestamptz("updated_at")
-      .default(sql`now()`)
-      .$onUpdateFn(() => new Date())
-      .notNull(),
   },
   (t) => [
     d.index("journals_type_idx").on(t.type),
@@ -371,10 +367,6 @@ export const ledgerEntries = d.snakeCase.table(
     createdAt: timestamptz("created_at")
       .default(sql`now()`)
       .notNull(),
-    updatedAt: timestamptz("updated_at")
-      .default(sql`now()`)
-      .$onUpdateFn(() => new Date())
-      .notNull(),
   },
   (t) => [
     d.index("ledger_entries_journal_id_idx").on(t.journalId),
@@ -403,10 +395,6 @@ export const paystackWebhookEvents = d.snakeCase.table(
     processedAt: timestamptz("processed_at"),
     createdAt: timestamptz("created_at")
       .default(sql`now()`)
-      .notNull(),
-    updatedAt: timestamptz("updated_at")
-      .default(sql`now()`)
-      .$onUpdateFn(() => new Date())
       .notNull(),
   },
   (t) => [
@@ -557,10 +545,6 @@ export const bids = d.snakeCase.table(
     createdAt: timestamptz("created_at")
       .default(sql`now()`)
       .notNull(),
-    updatedAt: timestamptz("updated_at")
-      .default(sql`now()`)
-      .$onUpdateFn(() => new Date())
-      .notNull(),
   },
   (t) => [
     d.index("bids_listing_id_idx").on(t.listingId),
@@ -619,10 +603,6 @@ export const bidRetractions = d.snakeCase.table(
     reason: retractionReason("reason").notNull(),
     createdAt: timestamptz("created_at")
       .default(sql`now()`)
-      .notNull(),
-    updatedAt: timestamptz("updated_at")
-      .default(sql`now()`)
-      .$onUpdateFn(() => new Date())
       .notNull(),
   },
   (t) => [
@@ -880,10 +860,6 @@ export const messages = d.snakeCase.table(
     createdAt: timestamptz("created_at")
       .default(sql`now()`)
       .notNull(),
-    updatedAt: timestamptz("updated_at")
-      .default(sql`now()`)
-      .$onUpdateFn(() => new Date())
-      .notNull(),
   },
   (t) => [d.index("messages_transaction_id_idx").on(t.transactionId)],
 );
@@ -980,10 +956,6 @@ export const strikes = d.snakeCase.table(
     issuedBySystem: d.boolean().default(false).notNull(),
     createdAt: timestamptz("created_at")
       .default(sql`now()`)
-      .notNull(),
-    updatedAt: timestamptz("updated_at")
-      .default(sql`now()`)
-      .$onUpdateFn(() => new Date())
       .notNull(),
   },
   (t) => [

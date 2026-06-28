@@ -19,10 +19,12 @@
     "db:up": "drizzle-kit up"
   },
   "dependencies": {
-    "drizzle-orm": "catalog:"
+    "drizzle-orm": "catalog:",
+    "pg": "8.22.0"
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "@types/pg": "8.20.0",
     "@typescript/native-preview": "catalog:",
     "drizzle-kit": "1.0.0-rc.3",
     "vite-plus": "catalog:"

@@ -11,6 +11,8 @@
     "db:migrate": "vp run @bidoja/database#db:migrate",
     "db:push": "vp run @bidoja/database#db:push",
     "db:up": "vp run @bidoja/database#db:up",
+    "infra:up": "docker compose up -d",
+    "infra:down": "docker compose down",
     "prepare": "vp config && effect-tsgo patch"
   },
   "devDependencies": {
