@@ -1,0 +1,22 @@
+{
+  "name": "@bidoja/server",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "build": "vp pack",
+    "start": "node dist/index.mjs",
+    "dev": "node --watch src/main.ts"
+  },
+  "dependencies": {
+    "@bidoja/database": "workspace:*",
+    "effect": "catalog:effect"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@typescript/native-preview": "catalog:",
+    "typescript": "~6.0.2",
+    "vite-plus": "catalog:"
+  }
+}
