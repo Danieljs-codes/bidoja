@@ -1,24 +1,24 @@
 {
-  "name": "@bidoja/server",
+  "name": "@bidoja/api-contract",
   "version": "0.0.0",
   "private": true,
+  "description": "The api contract that server would implement and client will use for typesafety",
   "license": "Apache-2.0",
   "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
   "scripts": {
-    "build": "vp pack",
-    "start": "node dist/index.mjs",
-    "dev": "node --watch src/index.ts"
+    "test": "vp test",
+    "check": "vp check"
   },
   "dependencies": {
-    "@bidoja/database": "workspace:*",
-    "@effect/platform-node": "catalog:effect",
-    "@effect/sql-pg": "catalog:effect",
     "effect": "catalog:effect"
   },
   "devDependencies": {
     "@types/node": "catalog:",
     "@typescript/native-preview": "catalog:",
-    "typescript": "~6.0.2",
     "vite-plus": "catalog:"
   }
 }

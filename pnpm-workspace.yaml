@@ -39,4 +39,6 @@ allowBuilds:
   msgpackr-extract: true
 catalogs:
   effect:
+    "@effect/platform-node": 4.0.0-beta.90
+    "@effect/sql-pg": 4.0.0-beta.90
     effect: 4.0.0-beta.90
