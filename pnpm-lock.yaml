@@ -291,6 +291,9 @@ importers:
 
   packages/api-contract:
     dependencies:
+      '@bidoja/auth':
+        specifier: workspace:*
+        version: link:../auth
       effect:
         specifier: catalog:effect
         version: 4.0.0-beta.90
