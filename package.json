@@ -16,7 +16,7 @@
     "prepare": "vp config && effect-tsgo patch"
   },
   "devDependencies": {
-    "@effect/tsgo": "0.14.6",
+    "@effect/tsgo": "0.15.0",
     "@types/node": "catalog:",
     "@typescript/native-preview": "catalog:",
     "vite-plus": "catalog:"
