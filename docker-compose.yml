@@ -16,7 +16,7 @@ x-healthcheck-defaults: &healthcheck-defaults
 services:
   postgres:
     <<: *service-defaults
-    image: postgres:18.3
+    image: postgres:18.4
     container_name: lecrev-postgres
     shm_size: ${POSTGRES_SHM_SIZE:-256mb}
     environment:
@@ -34,7 +34,7 @@ services:
 
   redis:
     <<: *service-defaults
-    image: redis:8.6.1
+    image: redis:8.8.0
     container_name: lecrev-redis
     ports:
       - "${DOCKER_BIND_ADDRESS:-127.0.0.1}:${REDIS_PORT:-6379}:6379"
@@ -63,7 +63,7 @@ services:
 
   mailpit:
     <<: *service-defaults
-    image: axllent/mailpit:v1.29.2
+    image: axllent/mailpit:v1.30.3
     container_name: lecrev-mailpit
     ports:
       - "${DOCKER_BIND_ADDRESS:-127.0.0.1}:${MAILPIT_UI_PORT:-8025}:8025"
@@ -74,7 +74,7 @@ services:
 
   caddy:
     <<: *service-defaults
-    image: caddy:2.11.2
+    image: caddy:2.11.4
     container_name: lecrev-caddy
     ports:
       - "${DOCKER_BIND_ADDRESS:-127.0.0.1}:${CADDY_HTTP_PORT:-80}:80"

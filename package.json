@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "ready": "vp check && vp run -r test && vp run -r build",
-    "dev": "vp run website#dev",
+    "dev": "docker compose up -d && vp run @bidoja/server#dev",
     "db:generate": "vp run @bidoja/database#db:generate",
     "db:migrate": "vp run @bidoja/database#db:migrate",
     "db:push": "vp run @bidoja/database#db:push",

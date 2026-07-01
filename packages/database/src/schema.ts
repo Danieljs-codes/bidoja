@@ -24,6 +24,7 @@ import {
   userStatus,
   walletStatus,
 } from "#/enums";
+import type { Brand } from "effect/Brand";
 
 const tsvector = d.customType<{ data: string }>({
   dataType() {
@@ -33,13 +34,40 @@ const tsvector = d.customType<{ data: string }>({
 
 const timestamptz = (name: string) => d.timestamp(name, { precision: 6, withTimezone: true });
 
-// ── Users ──────────────────────────────────────────────────────────────────
+// ── Users ──────────────────────────────────────────────────────────────────\
+
+type UserId = string & Brand<"UserId">;
+type TwoFactorId = string & Brand<"TwoFactorId">;
+type SessionId = string & Brand<"SessionId">;
+type AccountId = string & Brand<"AccountId">;
+type VerificationId = string & Brand<"VerificationId">;
+type WalletId = string & Brand<"WalletId">;
+type LedgerAccountId = string & Brand<"LedgerAccountId">;
+type JournalId = string & Brand<"JournalId">;
+type LedgerEntryId = string & Brand<"LedgerEntryId">;
+type PaystackWebhookEventId = string & Brand<"PaystackWebhookEventId">;
+type CategoryId = string & Brand<"CategoryId">;
+type ListingId = string & Brand<"ListingId">;
+type ListingImageId = string & Brand<"ListingImageId">;
+type BidId = string & Brand<"BidId">;
+type TransactionId = string & Brand<"TransactionId">;
+type PaystackTransferId = string & Brand<"PaystackTransferId">;
+type ReceiptId = string & Brand<"ReceiptId">;
+type DisputeId = string & Brand<"DisputeId">;
+type MessageId = string & Brand<"MessageId">;
+type RatingId = string & Brand<"RatingId">;
+type ReportId = string & Brand<"ReportId">;
+type StrikeId = string & Brand<"StrikeId">;
+type NotificationId = string & Brand<"NotificationId">;
+
+// UserId and other branded IDs are not assignable to each other even though all wrap `string`
 
 export const users = d.snakeCase.table(
   "users",
   {
     id: d
       .uuid()
+      .$type<UserId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     name: d.text().notNull(),
@@ -76,12 +104,14 @@ export const twoFactors = d.snakeCase.table(
   {
     id: d
       .uuid()
+      .$type<TwoFactorId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     secret: d.text().notNull(),
     backupCodes: d.text("backup_codes").notNull(),
     userId: d
       .uuid("user_id")
+      .$type<UserId>()
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     verified: d.boolean().default(true).notNull(),
@@ -103,6 +133,7 @@ export const sessions = d.snakeCase.table(
   {
     id: d
       .uuid()
+      .$type<SessionId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     expiresAt: timestamptz("expires_at").notNull(),
@@ -118,9 +149,13 @@ export const sessions = d.snakeCase.table(
     userAgent: d.text(),
     userId: d
       .uuid()
+      .$type<UserId>()
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    impersonatedBy: d.uuid().references(() => users.id),
+    impersonatedBy: d
+      .uuid()
+      .$type<UserId>()
+      .references(() => users.id),
   },
   (t) => [d.index("sessions_user_id_idx").on(t.userId)],
 );
@@ -132,12 +167,14 @@ export const accounts = d.snakeCase.table(
   {
     id: d
       .uuid()
+      .$type<AccountId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     accountId: d.text().notNull(),
     providerId: d.text().notNull(),
     userId: d
       .uuid()
+      .$type<UserId>()
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     accessToken: d.text(),
@@ -165,6 +202,7 @@ export const verifications = d.snakeCase.table(
   {
     id: d
       .uuid()
+      .$type<VerificationId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     identifier: d.text().notNull(),
@@ -188,10 +226,12 @@ export const wallets = d.snakeCase.table(
   {
     id: d
       .uuid()
+      .$type<WalletId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     userId: d
       .uuid()
+      .$type<UserId>()
       .notNull()
       .unique()
       .references(() => users.id, { onDelete: "cascade" }),
@@ -278,13 +318,17 @@ export const ledgerAccounts = d.snakeCase.table(
   {
     id: d
       .uuid()
+      .$type<LedgerAccountId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     code: ledgerAccountCode("code").notNull(),
     scope: ledgerAccountScope("scope").notNull(),
-    walletId: d.uuid().references(() => wallets.id, {
-      onDelete: "restrict",
-    }),
+    walletId: d
+      .uuid()
+      .$type<WalletId>()
+      .references(() => wallets.id, {
+        onDelete: "restrict",
+      }),
     createdAt: timestamptz("created_at")
       .default(sql`now()`)
       .notNull(),
@@ -324,12 +368,16 @@ export const journals = d.snakeCase.table(
   {
     id: d
       .uuid("id")
+      .$type<JournalId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     type: journalType("type").notNull(),
     description: d.text().notNull(),
     reference: d.text().notNull().unique(),
-    triggeredByUserId: d.uuid().references(() => users.id),
+    triggeredByUserId: d
+      .uuid()
+      .$type<UserId>()
+      .references(() => users.id),
     paystackReference: d.text(),
     createdAt: timestamptz("created_at")
       .default(sql`now()`)
@@ -352,14 +400,17 @@ export const ledgerEntries = d.snakeCase.table(
   {
     id: d
       .uuid()
+      .$type<LedgerEntryId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     journalId: d
       .uuid()
+      .$type<JournalId>()
       .notNull()
       .references(() => journals.id, { onDelete: "restrict" }),
     accountId: d
       .uuid()
+      .$type<LedgerAccountId>()
       .notNull()
       .references(() => ledgerAccounts.id, { onDelete: "restrict" }),
     debit: d.bigint({ mode: "bigint" }),
@@ -385,6 +436,7 @@ export const paystackWebhookEvents = d.snakeCase.table(
   {
     id: d
       .uuid()
+      .$type<PaystackWebhookEventId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     event: d.text().notNull(),
@@ -419,6 +471,7 @@ export const categories = d.snakeCase.table(
   {
     id: d
       .uuid()
+      .$type<CategoryId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     name: d.text().notNull().unique(),
@@ -438,10 +491,12 @@ export const listings = d.snakeCase.table(
   {
     id: d
       .uuid()
+      .$type<ListingId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     sellerId: d
       .uuid()
+      .$type<UserId>()
       .notNull()
       .references(() => users.id),
     title: d.text().notNull(),
@@ -449,6 +504,7 @@ export const listings = d.snakeCase.table(
     condition: listingCondition("condition").notNull(),
     categoryId: d
       .uuid()
+      .$type<CategoryId>()
       .notNull()
       .references(() => categories.id),
     startingBid: d.bigint({ mode: "bigint" }).notNull(),
@@ -464,7 +520,10 @@ export const listings = d.snakeCase.table(
     extensionCount: d.integer().default(0).notNull(),
     isReplica: d.boolean().default(false).notNull(),
     sellerDepositHeld: d.boolean().default(false).notNull(),
-    reviewedById: d.uuid().references(() => users.id),
+    reviewedById: d
+      .uuid()
+      .$type<UserId>()
+      .references(() => users.id),
     reviewedAt: timestamptz("reviewed_at"),
     createdAt: timestamptz("created_at")
       .default(sql`now()`)
@@ -501,10 +560,12 @@ export const listingImages = d.snakeCase.table(
   {
     id: d
       .uuid()
+      .$type<ListingImageId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     listingId: d
       .uuid()
+      .$type<ListingId>()
       .notNull()
       .references(() => listings.id, { onDelete: "cascade" }),
     url: d.text().notNull(),
@@ -531,14 +592,17 @@ export const bids = d.snakeCase.table(
   {
     id: d
       .uuid()
+      .$type<BidId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     listingId: d
       .uuid()
+      .$type<ListingId>()
       .notNull()
       .references(() => listings.id, { onDelete: "restrict" }),
     bidderId: d
       .uuid()
+      .$type<UserId>()
       .notNull()
       .references(() => users.id),
     amount: d.bigint({ mode: "bigint" }).notNull(),
@@ -563,9 +627,10 @@ export const listingBidState = d.snakeCase.table(
   {
     listingId: d
       .uuid()
+      .$type<ListingId>()
       .primaryKey()
       .references(() => listings.id, { onDelete: "cascade" }),
-    currentHighestBidId: d.uuid(),
+    currentHighestBidId: d.uuid().$type<BidId>(),
     bidCount: d.integer().default(0).notNull(),
     updatedAt: timestamptz("updated_at")
       .default(sql`now()`)
@@ -597,9 +662,9 @@ export const listingBidState = d.snakeCase.table(
 export const bidRetractions = d.snakeCase.table(
   "bid_retractions",
   {
-    bidId: d.uuid().primaryKey(),
-    listingId: d.uuid().notNull(),
-    bidderId: d.uuid().notNull(),
+    bidId: d.uuid().$type<BidId>().primaryKey(),
+    listingId: d.uuid().$type<ListingId>().notNull(),
+    bidderId: d.uuid().$type<UserId>().notNull(),
     reason: retractionReason("reason").notNull(),
     createdAt: timestamptz("created_at")
       .default(sql`now()`)
@@ -625,23 +690,28 @@ export const transactions = d.snakeCase.table(
   {
     id: d
       .uuid()
+      .$type<TransactionId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     listingId: d
       .uuid()
+      .$type<ListingId>()
       .notNull()
       .unique()
       .references(() => listings.id),
     buyerId: d
       .uuid()
+      .$type<UserId>()
       .notNull()
       .references(() => users.id),
     sellerId: d
       .uuid()
+      .$type<UserId>()
       .notNull()
       .references(() => users.id),
     winningBidId: d
       .uuid()
+      .$type<BidId>()
       .notNull()
       .unique()
       .references(() => bids.id),
@@ -734,14 +804,17 @@ export const paystackTransfers = d.snakeCase.table(
   {
     id: d
       .uuid()
+      .$type<PaystackTransferId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     walletId: d
       .uuid()
+      .$type<WalletId>()
       .notNull()
       .references(() => wallets.id, { onDelete: "restrict" }),
     journalId: d
       .uuid()
+      .$type<JournalId>()
       .unique()
       .references(() => journals.id, { onDelete: "restrict" }),
     type: paystackTransferType("type").notNull(),
@@ -777,10 +850,12 @@ export const receipts = d.snakeCase.table(
   {
     id: d
       .uuid()
+      .$type<ReceiptId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     transactionId: d
       .uuid()
+      .$type<TransactionId>()
       .notNull()
       .unique()
       .references(() => transactions.id, { onDelete: "cascade" }),
@@ -804,14 +879,17 @@ export const disputes = d.snakeCase.table(
   {
     id: d
       .uuid()
+      .$type<DisputeId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     transactionId: d
       .uuid()
+      .$type<TransactionId>()
       .notNull()
       .references(() => transactions.id, { onDelete: "cascade" }),
     raisedById: d
       .uuid()
+      .$type<UserId>()
       .notNull()
       .references(() => users.id),
     reason: disputeReason("reason").notNull(),
@@ -819,7 +897,10 @@ export const disputes = d.snakeCase.table(
     evidenceUrls: d.jsonb().notNull().default([]).$type<string[]>(),
     status: disputeStatus("status").default("open").notNull(),
     outcome: disputeOutcome("outcome"),
-    resolvedById: d.uuid().references(() => users.id),
+    resolvedById: d
+      .uuid()
+      .$type<UserId>()
+      .references(() => users.id),
     createdAt: timestamptz("created_at")
       .default(sql`now()`)
       .notNull(),
@@ -842,18 +923,22 @@ export const messages = d.snakeCase.table(
   {
     id: d
       .uuid()
+      .$type<MessageId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     transactionId: d
       .uuid()
+      .$type<TransactionId>()
       .notNull()
       .references(() => transactions.id, { onDelete: "cascade" }),
     senderId: d
       .uuid()
+      .$type<UserId>()
       .notNull()
       .references(() => users.id),
     receiverId: d
       .uuid()
+      .$type<UserId>()
       .notNull()
       .references(() => users.id),
     body: d.text().notNull(),
@@ -871,19 +956,23 @@ export const ratings = d.snakeCase.table(
   {
     id: d
       .uuid()
+      .$type<RatingId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     transactionId: d
       .uuid()
+      .$type<TransactionId>()
       .notNull()
       .unique()
       .references(() => transactions.id, { onDelete: "cascade" }),
     reviewerId: d
       .uuid()
+      .$type<UserId>()
       .notNull()
       .references(() => users.id),
     sellerId: d
       .uuid()
+      .$type<UserId>()
       .notNull()
       .references(() => users.id),
     score: d.integer().notNull(),
@@ -906,19 +995,33 @@ export const reports = d.snakeCase.table(
   {
     id: d
       .uuid()
+      .$type<ReportId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     reporterId: d
       .uuid()
+      .$type<UserId>()
       .notNull()
       .references(() => users.id),
-    reportedUserId: d.uuid().references(() => users.id),
-    reportedListingId: d.uuid().references(() => listings.id),
-    reportedMessageId: d.uuid().references(() => messages.id),
+    reportedUserId: d
+      .uuid()
+      .$type<UserId>()
+      .references(() => users.id),
+    reportedListingId: d
+      .uuid()
+      .$type<ListingId>()
+      .references(() => listings.id),
+    reportedMessageId: d
+      .uuid()
+      .$type<MessageId>()
+      .references(() => messages.id),
     type: reportType("type").notNull(),
     reason: d.text().notNull(),
     status: reportStatus("status").default("pending").notNull(),
-    reviewedById: d.uuid().references(() => users.id),
+    reviewedById: d
+      .uuid()
+      .$type<UserId>()
+      .references(() => users.id),
     createdAt: timestamptz("created_at")
       .default(sql`now()`)
       .notNull(),
@@ -945,14 +1048,19 @@ export const strikes = d.snakeCase.table(
   {
     id: d
       .uuid()
+      .$type<StrikeId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     userId: d
       .uuid()
+      .$type<UserId>()
       .notNull()
       .references(() => users.id),
     reason: d.text().notNull(),
-    issuedById: d.uuid().references(() => users.id),
+    issuedById: d
+      .uuid()
+      .$type<UserId>()
+      .references(() => users.id),
     issuedBySystem: d.boolean().default(false).notNull(),
     createdAt: timestamptz("created_at")
       .default(sql`now()`)
@@ -974,10 +1082,12 @@ export const notifications = d.snakeCase.table(
   {
     id: d
       .uuid()
+      .$type<NotificationId>()
       .default(sql`uuidv7()`)
       .primaryKey(),
     userId: d
       .uuid()
+      .$type<UserId>()
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     type: notificationType("type").notNull(),
